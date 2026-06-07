@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Cliente {
+  id       String   @id @default(cuid())
+  nombre   String
+  email    String   @unique
+  telefono String
+  citas    Cita[]
+  creadoEn DateTime @default(now())
+}
+
+model Cita {
+  id        String     @id @default(cuid())
+  cliente   Cliente    @relation(fields: [clienteId], references: [id])
+  clienteId String
+  fecha     DateTime
+  servicio  String
+  estado    EstadoCita @default(PENDIENTE)
+  notas     String?
+  pago      Pago?
+  creadoEn  DateTime   @default(now())
+}
+
+model Pago {
+  id         String   @id @default(cuid())
+  cita       Cita     @relation(fields: [citaId], references: [id])
+  citaId     String   @unique
+  monto      Int
+  metodoPago String
+  fechaPago  DateTime @default(now())
+  notas      String?
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  creadoEn     DateTime @default(now())
+}
+
+enum EstadoCita {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+  COMPLETADA
+}
